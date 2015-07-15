@@ -1,0 +1,2 @@
+需要安装SQLite.NET
+一个sqlite+c#的小例子
