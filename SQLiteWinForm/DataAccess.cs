@@ -15,6 +15,15 @@ namespace SQLiteView
             con = new SQLiteConnection("Data Source=test.db3");
             command = con.CreateCommand();
         }
+
+        public DataTable ReadFormula(string tableName, string name_list)
+        {
+            command.CommandText = "SELECT name,price FROM " + tableName + " where name in " + name_list;
+            SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+            DataTable dt = new DataTable(tableName);
+            da.Fill(dt);
+            return dt;
+        }
         //读取数据表记录
         public DataTable ReadTable(string tableName)
         {
@@ -24,9 +33,18 @@ namespace SQLiteView
             da.Fill(dt);
             return dt;
         }
+        //读取数据表记录
+        public DataTable ReadTableByName(string tableName, string key)
+        {
+            command.CommandText = "SELECT id FROM " + tableName + " where name='" + key + "'";
+            SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+            DataTable dt = new DataTable(tableName);
+            da.Fill(dt);
+            return dt;
+        }
 
         //读取数据表记录
-        public DataTable ReadTableByName(string tableName, String key)
+        public DataTable ReadTableByNameFuzzy(string tableName, string key)
         {
             command.CommandText = "SELECT * FROM " + tableName + " where name like '%" + key + "%'";
             SQLiteDataAdapter da = new SQLiteDataAdapter(command);

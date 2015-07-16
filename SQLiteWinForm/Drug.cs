@@ -13,36 +13,53 @@ namespace SQLiteView
         {
             InitializeComponent();
             dba = new DataAccess();
+            DataGridViewCheckBoxColumn column = new DataGridViewCheckBoxColumn();
+            {
+                column.HeaderText = "选择";
+                column.Name = "select";
+                column.FlatStyle = FlatStyle.System;
+                column.CellTemplate.ReadOnly = false;
+                column.CellTemplate.Style.BackColor = System.Drawing.Color.Beige;
+            }
+
+            dataGridViewDrug.Columns.Insert(0, column);
+         
             RefreshTable();
+            InitTable();
         }
 
         private void setReadOnlyOfRows(bool state)
         {
             int count = dataGridViewDrug.Columns.Count;
-            for (int i = 0; i < count; i++)
+            for (int i = 2; i < count; i++)
             {
                 dataGridViewDrug.Columns[i].ReadOnly = state;
             }
+        }
+
+        private void InitTable()
+        {
+            dataGridViewDrug.AllowUserToAddRows = false;
+            dataGridViewDrug.Columns[1].HeaderText = "序号";
+            dataGridViewDrug.Columns[1].ReadOnly = true;
+            dataGridViewDrug.Columns[2].HeaderText = "名称";
+            dataGridViewDrug.Columns[3].HeaderText = "单价";
+            dataGridViewDrug.Columns[4].HeaderText = "产地";
+            dataGridViewDrug.Columns[5].HeaderText = "种类";
+            dataGridViewDrug.Columns[6].HeaderText = "描述信息";
+
+            int count = dataGridViewDrug.RowCount;
+            for (int i = 0; i < count; i++)
+            {
+                dataGridViewDrug.Rows[i].Cells[1].Value = i + 1;       
+            }
+            setReadOnlyOfRows(true);
         }
 
         //刷新数据源
         private void RefreshTable()
         {
             dataGridViewDrug.DataSource = dba.ReadTable(table_name);
-            setReadOnlyOfRows(true);
-            dataGridViewDrug.AllowUserToAddRows = false;
-            dataGridViewDrug.Columns[0].HeaderText = "序号";
-            dataGridViewDrug.Columns[1].HeaderText = "名称";
-            dataGridViewDrug.Columns[2].HeaderText = "单价";
-            dataGridViewDrug.Columns[3].HeaderText = "产地";
-            dataGridViewDrug.Columns[4].HeaderText = "种类";
-            dataGridViewDrug.Columns[5].HeaderText = "描述信息";
-
-            int count = dataGridViewDrug.RowCount;
-            for (int i = 0; i < count; i++)
-            {
-                dataGridViewDrug.Rows[i].Cells[0].Value = i + 1;       
-            }
         }
         //更新数据源
         private void UpdateTable(DataTable dt)
@@ -122,12 +139,29 @@ namespace SQLiteView
                 MessageBox.Show("请输入药品名称.", "Drug", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
                 return;
             }
-            dataGridViewDrug.DataSource = dba.ReadTableByName(table_name, textBox_search.Text);
+            dataGridViewDrug.DataSource = dba.ReadTableByNameFuzzy(table_name, textBox_search.Text);
         }
 
         private void ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            calu c = new calu(this.dataGridViewDrug.CurrentRow);
+            List<string> drug_names = new List<string>();
+
+            for (int i = 0; i < dataGridViewDrug.Rows.Count; i++)
+            {
+                if ((bool)dataGridViewDrug.Rows[i].Cells[0].EditedFormattedValue == true)
+                {
+
+                    drug_names.Add(dataGridViewDrug.Rows[i].Cells[2].Value.ToString());
+                }
+            }
+
+            if (drug_names.Count <= 0)
+            {
+                MessageBox.Show("请至少选择一种药品.", "Drug", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                return;
+            }
+
+            calu c = new calu(drug_names);
             c.Show();
         }
     }
