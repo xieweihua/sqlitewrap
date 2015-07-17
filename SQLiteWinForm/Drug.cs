@@ -9,6 +9,7 @@ namespace SQLiteView
     public partial class Drug : Form
     {
         DataAccess dba;
+        private List<string> drug_names;
         public Drug()
         {
             InitializeComponent();
@@ -26,6 +27,24 @@ namespace SQLiteView
          
             RefreshTable();
             InitTable();
+            drug_names = new List<string>();
+        }
+
+        private void setCheckBoxState()
+        {
+            int count = dataGridViewDrug.Rows.Count;
+            if (drug_names == null)
+            {
+                return;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                DataGridViewRow row = dataGridViewDrug.Rows[i];
+                if( drug_names.Contains(row.Cells["name"].Value.ToString()))
+                {
+                    row.Cells[0].Value = true;
+                }
+            }
         }
 
         private void setReadOnlyOfRows(bool state)
@@ -44,9 +63,7 @@ namespace SQLiteView
             dataGridViewDrug.Columns[1].ReadOnly = true;
             dataGridViewDrug.Columns[2].HeaderText = "名称";
             dataGridViewDrug.Columns[3].HeaderText = "单价";
-            dataGridViewDrug.Columns[4].HeaderText = "产地";
-            dataGridViewDrug.Columns[5].HeaderText = "种类";
-            dataGridViewDrug.Columns[6].HeaderText = "描述信息";
+            dataGridViewDrug.Columns[4].HeaderText = "描述信息";
 
             int count = dataGridViewDrug.RowCount;
             for (int i = 0; i < count; i++)
@@ -60,6 +77,7 @@ namespace SQLiteView
         private void RefreshTable()
         {
             dataGridViewDrug.DataSource = dba.ReadTable(table_name);
+            setCheckBoxState();
         }
         //更新数据源
         private void UpdateTable(DataTable dt)
@@ -140,21 +158,11 @@ namespace SQLiteView
                 return;
             }
             dataGridViewDrug.DataSource = dba.ReadTableByNameFuzzy(table_name, textBox_search.Text);
+            setCheckBoxState();
         }
 
         private void ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<string> drug_names = new List<string>();
-
-            for (int i = 0; i < dataGridViewDrug.Rows.Count; i++)
-            {
-                if ((bool)dataGridViewDrug.Rows[i].Cells[0].EditedFormattedValue == true)
-                {
-
-                    drug_names.Add(dataGridViewDrug.Rows[i].Cells[2].Value.ToString());
-                }
-            }
-
             if (drug_names.Count <= 0)
             {
                 MessageBox.Show("请至少选择一种药品.", "Drug", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
@@ -163,6 +171,51 @@ namespace SQLiteView
 
             calu c = new calu(drug_names);
             c.Show();
+        }
+
+        private void dataGridViewDrug_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dataGridViewDrug.IsCurrentCellDirty)
+            {
+                dataGridViewDrug.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }    
+        }
+
+        private void dataGridViewDrug_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != 0)
+            {
+                return;
+            }
+            DataGridViewRow row = dataGridViewDrug.Rows[e.RowIndex];
+            string name = row.Cells[2].Value.ToString();
+            if ((bool)row.Cells[0].EditedFormattedValue == true)
+            {
+                if (!drug_names.Contains(name))
+                {
+                    drug_names.Add(name);
+                }
+            }
+            else
+            {
+                if (drug_names.Contains(name))
+                {
+                    drug_names.Remove(name);
+                }
+            }   
+        }
+
+        private void ResetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int count = dataGridViewDrug.Rows.Count;
+            if (drug_names == null)
+            {
+                return;
+            }
+            for (int i = 0; i < count; i++)
+            {
+                dataGridViewDrug.Rows[i].Cells[0].Value = false;
+            }
         }
     }
 }

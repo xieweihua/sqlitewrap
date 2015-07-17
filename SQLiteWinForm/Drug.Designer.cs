@@ -42,13 +42,14 @@
             this.textBox_search = new System.Windows.Forms.TextBox();
             this.contextMenuStripDrug = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ResetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewDrug)).BeginInit();
             this.contextMenuStripDrug.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridViewDrug
             // 
-            this.dataGridViewDrug.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.ColumnHeader;
+            this.dataGridViewDrug.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridViewDrug.BackgroundColor = System.Drawing.SystemColors.ActiveBorder;
             this.dataGridViewDrug.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.Raised;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
@@ -76,6 +77,8 @@
             this.dataGridViewDrug.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewDrug.Size = new System.Drawing.Size(459, 252);
             this.dataGridViewDrug.TabIndex = 11;
+            this.dataGridViewDrug.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewDrug_CellValueChanged);
+            this.dataGridViewDrug.CurrentCellDirtyStateChanged += new System.EventHandler(this.dataGridViewDrug_CurrentCellDirtyStateChanged);
             // 
             // button_load
             // 
@@ -148,9 +151,10 @@
             // contextMenuStripDrug
             // 
             this.contextMenuStripDrug.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ToolStripMenuItem});
+            this.ToolStripMenuItem,
+            this.ResetToolStripMenuItem});
             this.contextMenuStripDrug.Name = "contextMenuStripDrug";
-            this.contextMenuStripDrug.Size = new System.Drawing.Size(125, 26);
+            this.contextMenuStripDrug.Size = new System.Drawing.Size(125, 48);
             // 
             // ToolStripMenuItem
             // 
@@ -158,6 +162,13 @@
             this.ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.ToolStripMenuItem.Text = "计算总价";
             this.ToolStripMenuItem.Click += new System.EventHandler(this.ToolStripMenuItem_Click);
+            // 
+            // ResetToolStripMenuItem
+            // 
+            this.ResetToolStripMenuItem.Name = "ResetToolStripMenuItem";
+            this.ResetToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.ResetToolStripMenuItem.Text = "重置";
+            this.ResetToolStripMenuItem.Click += new System.EventHandler(this.ResetToolStripMenuItem_Click);
             // 
             // Drug
             // 
@@ -198,6 +209,7 @@
         private string table_name = "drug";
         private System.Windows.Forms.ContextMenuStrip contextMenuStripDrug;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ResetToolStripMenuItem;
     }
 }
 

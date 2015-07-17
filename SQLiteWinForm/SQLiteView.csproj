@@ -98,6 +98,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DLLFullPrint\DLLFullPrint.csproj">
+      <Project>{96CE72C5-C3DD-412D-AC03-80DA5F9363DD}</Project>
+      <Name>DLLFullPrint</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

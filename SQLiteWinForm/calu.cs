@@ -19,12 +19,21 @@ namespace SQLiteView
             dba = new DataAccess();
             drug_names = names;
             initTable();
-            DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn();
+            
             dataGridFormulaView.Columns[0].HeaderText = "名称";
             dataGridFormulaView.Columns[1].HeaderText = "单价";
-            column.HeaderText = "重量";
+            DataGridViewTextBoxColumn column = new DataGridViewTextBoxColumn();
+            column.HeaderText = "剂量";
+            column.Name = "weight";
             column.DefaultCellStyle.NullValue = "0";
             dataGridFormulaView.Columns.Add(column);
+
+            DataGridViewTextBoxColumn column_cost = new DataGridViewTextBoxColumn();
+            column_cost.HeaderText = "价格";
+            column_cost.Name = "cost";
+            column_cost.DefaultCellStyle.NullValue = "0";
+            dataGridFormulaView.Columns.Add(column_cost);
+
             setReadOnlyOfRows();
         }
 
@@ -33,6 +42,7 @@ namespace SQLiteView
             dataGridFormulaView.Columns[0].ReadOnly = true;
             dataGridFormulaView.Columns[1].ReadOnly = true;
             dataGridFormulaView.Columns[2].ReadOnly = false;
+            dataGridFormulaView.Columns[3].ReadOnly = true;
         }
 
         public void addDrugByName(string drugName)
@@ -72,17 +82,6 @@ namespace SQLiteView
 
         private List<string> drug_names;
 
-        private void caluToatalCost_Click(object sender, EventArgs e)
-        {
-            double total = 0.0;
-            for (int i = 0; i < dataGridFormulaView.Rows.Count; i++)
-            {
-                if (dataGridFormulaView.Rows[i].Cells[0].Value != null)
-                    total += (double)dataGridFormulaView.Rows[i].Cells[2].Value * double.Parse(dataGridFormulaView.Rows[i].Cells[0].Value.ToString());
-            }
-            MessageBox.Show("总价：" + total.ToString(), "Drug", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-        }
-
         private void delteDrug_Click(object sender, EventArgs e)
         {
             DataTable dt = this.dataGridFormulaView.DataSource as DataTable;
@@ -103,6 +102,85 @@ namespace SQLiteView
         {
             input c = new input(this);
             c.Show();
+        }
+
+        private DataTable GetDgvToTable(DataGridView dgv)
+        {
+            DataTable dt = new DataTable();
+
+            // 列强制转换
+            for (int count = 0; count < dgv.Columns.Count; count++)
+            {
+                DataColumn dc = new DataColumn(dgv.Columns[count].HeaderText.ToString());
+                dt.Columns.Add(dc);
+            }
+
+            // 循环行
+            for (int count = 0; count < dgv.Rows.Count; count++)
+            {
+                DataRow dr = dt.NewRow();
+                for (int countsub = 0; countsub < dgv.Columns.Count; countsub++)
+                {
+                    if (dgv.Rows[count].Cells[countsub].Value == null)
+                        dr[countsub] = "0";
+                    else
+                        dr[countsub] = Convert.ToString(dgv.Rows[count].Cells[countsub].Value);
+                }
+                dt.Rows.Add(dr);
+            }
+            DataRow drTotal = dt.NewRow();
+            drTotal[0] = "总价";
+            drTotal[1] = this.caluToatalCost().ToString();
+            dt.Rows.Add(drTotal);
+
+            dt.Columns[2].SetOrdinal(0);
+            dt.Columns[3].SetOrdinal(1);  
+            return dt;
+        }
+
+        private void PrintToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Data.DataTable dt = GetDgvToTable(dataGridFormulaView);
+            DataSet dy = new DataSet();
+            dy.Tables.Add(dt);
+            DLLFullPrint.MyDLL.TakeOver(dy);
+        }
+
+        private void dataGridViewDrug_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dataGridFormulaView.IsCurrentCellDirty)
+            {
+                dataGridFormulaView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private void dataGridViewDrug_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+            DataGridViewCellCollection cells = dataGridFormulaView.Rows[e.RowIndex].Cells;
+            cells["cost"].Value = Double.Parse(cells["weight"].Value.ToString()) * Double.Parse(cells["price"].Value.ToString());
+
+            double cost = 0;
+            for(int i = 0; i < dataGridFormulaView.Rows.Count; i++) 
+            {
+                if (dataGridFormulaView.Rows[i].Cells["cost"].Value != null)
+                    cost += double.Parse(dataGridFormulaView.Rows[i].Cells["cost"].Value.ToString());
+            }
+            labelTotalCost.Text = "总价：" + cost.ToString();
+        }
+
+        private double caluToatalCost()
+        {
+            double total = 0.0;
+            for (int i = 0; i < dataGridFormulaView.Rows.Count; i++)
+            {
+                if (dataGridFormulaView.Rows[i].Cells[0].Value != null)
+                    total += double.Parse(dataGridFormulaView.Rows[i].Cells[1].Value.ToString());
+            }
+            return total;
         }
     }
 }

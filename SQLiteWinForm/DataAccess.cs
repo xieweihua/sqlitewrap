@@ -27,7 +27,7 @@ namespace SQLiteView
         //读取数据表记录
         public DataTable ReadTable(string tableName)
         {
-            command.CommandText = "SELECT * FROM " + tableName;
+            command.CommandText = "SELECT id,name,price,desc FROM " + tableName;
             SQLiteDataAdapter da = new SQLiteDataAdapter(command);
             DataTable dt = new DataTable(tableName);
             da.Fill(dt);
@@ -46,7 +46,7 @@ namespace SQLiteView
         //读取数据表记录
         public DataTable ReadTableByNameFuzzy(string tableName, string key)
         {
-            command.CommandText = "SELECT * FROM " + tableName + " where name like '%" + key + "%'";
+            command.CommandText = "SELECT id,name,price,desc  FROM " + tableName + " where name like '%" + key + "%'";
             SQLiteDataAdapter da = new SQLiteDataAdapter(command);
             DataTable dt = new DataTable(tableName);
             da.Fill(dt);
